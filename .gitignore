@@ -1,4 +1,8 @@
 # Ignore any file in this directory except for this file and *.py files
-*
+!**/*.py
+!**/*.cfg
 !/.gitignore
 !*.py
+**/*~
+**/*.pyc
+
