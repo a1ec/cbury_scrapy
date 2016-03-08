@@ -1,8 +1,13 @@
-# Ignore any file in this directory except for this file and *.py files
+# Don't ignore all python and cfg files in all directories (recursive)
 !**/*.py
 !**/*.cfg
+
+# Ignore any file in this directory except for this file and *.py files
 !/.gitignore
 !*.py
+
+# Ignore gedit backups
 **/*~
+# Ignore pyc
 **/*.pyc
 
