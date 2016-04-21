@@ -10,4 +10,4 @@
 **/*~
 # Ignore pyc
 **/*.pyc
-
+scraped_data
