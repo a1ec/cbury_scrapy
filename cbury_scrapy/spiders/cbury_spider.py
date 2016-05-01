@@ -1,5 +1,5 @@
 """ Run under bash like so
-    timenow=`date +%Y%m%d_%H%M%S`; scrapy runspider cbury_spider.py -o cbury-scrape-$timenow.json
+    timenow=`date +%Y%m%d_%H%M%S`; scrapy runspider cbury_spider.py -o cbury-scrape-$timenow.json > cbury-scrape-$timenow.log
 """
 
 import scrapy
@@ -16,7 +16,7 @@ class CburySpider(scrapy.Spider):
     name = "cbury"
     allowed_domains = ["datrack.canterbury.nsw.gov.au"]
     start_urls = [
-        "http://datrack.canterbury.nsw.gov.au/cgi/datrack.pl?search=search&startidx=",
+        "http://datrack.canterbury.nsw.gov.au/cgi/datrack.pl?search=search&sortfield=^metadata.date_lodged&startidx=6590",
     ]
 
     da = DA()        
