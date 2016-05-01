@@ -1,5 +1,5 @@
 """ Run under bash like so
-    timenow=`date +%Y%m%d_%H%M%S`; scrapy runspider cbury_spider.py -o cbury-scrape-$timenow.json > cbury-scrape-$timenow.log
+    timenow=`date +%Y%m%d_%H%M%S`; scrapy runspider cbury_spider.py -o cbury-scrape-$timenow.json
 """
 
 import scrapy
@@ -16,7 +16,7 @@ class CburySpider(scrapy.Spider):
     name = "cbury"
     allowed_domains = ["datrack.canterbury.nsw.gov.au"]
     start_urls = [
-        "http://datrack.canterbury.nsw.gov.au/cgi/datrack.pl?search=search&sortfield=^metadata.date_lodged&startidx=6590",
+        "http://datrack.canterbury.nsw.gov.au/cgi/datrack.pl?search=search&sortfield=^metadata.date_lodged", # add &startidx=n if need be
     ]
 
     da = DA()        
@@ -71,6 +71,10 @@ class CburySpider(scrapy.Spider):
         # map DA fields with those in the folliwng <td> elements on the page
         for i in labels:
             self.da[i] = td_text_after(labels[i], response)
+
+        # convert est_cost text to int for easier sheet import
+        # e.g. "12,000,000" -> 12000000
+        self.da[est_cost] = int(self.da[est_cost].translate(None, '$,'))
 
         # Get people data from 'Names' table, 'Role' heading
         self.da['names'] = []
