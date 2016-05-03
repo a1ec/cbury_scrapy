@@ -7,4 +7,5 @@
                scrapy runspider cbury_spider.py -o cbury-scrape-$timenow.json
 
 > TODO
-> Accuracy of data not verified, possible bug / race condition in code
+> Fix data integrity issue, rows are being output into file with incorrect 
+> field values from other rows.
