@@ -41,6 +41,9 @@ class CburySpider(scrapy.Spider):
             self.da['town'] = r.xpath('//td[@class="datrack_town_cell"]//text()').extract_first()#
             self.da['url'] = url = r.xpath('//td[@class="datrack_danumber_cell"]//@href').extract_first()#
             
+            # get the remaining DA details from its page
+            yield scrapy.Request(self.da['url'], callback=self.parse_da_item)
+    
     def parse(self, response):
         """ Retrieve total number of DAs from initial list page """ 
         # get number of total items
@@ -53,9 +56,6 @@ class CburySpider(scrapy.Spider):
         # get url and da
         self.get_da_url_addr(response)
         
-        # get the remaining DA details from its page
-        yield scrapy.Request(self.da['url'], callback=self.parse_da_item)
-
         # invoke shell for inspection    
         # inspect_response(response, self)
                 
