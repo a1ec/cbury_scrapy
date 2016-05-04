@@ -28,7 +28,7 @@ class CburySpider(scrapy.Spider):
     items_remaining = 0
     da = DA()        
     da['lga'] = u"Canterbury"
-    #CloseSpider.CLOSESPIDER_ITEMCOUNT = 25
+    # CloseSpider.CLOSESPIDER_ITEMCOUNT = 25
 
     def get_da_url_addr(self, response):
         # Select all DA rows on the page
