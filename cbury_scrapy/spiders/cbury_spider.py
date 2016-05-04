@@ -1,6 +1,6 @@
 """ Run under bash like so
     timenow=`date +%Y%m%d_%H%M%S`;
-    scrapy runspider cbury_spider.py -o ../../scrapedcbury-scrape-$timenow.json
+    scrapy runspider cbury_spider.py -o ../../scraped_data/cbury-scrape-$timenow.csv
 """
 
 import scrapy
@@ -28,7 +28,7 @@ class CburySpider(scrapy.Spider):
     items_remaining = 0
     da = DA()        
     da['lga'] = u"Canterbury"
-    CloseSpider.CLOSESPIDER_ITEMCOUNT = 25
+    #CloseSpider.CLOSESPIDER_ITEMCOUNT = 25
 
     def get_da_url_addr(self, response):
         # Select all DA rows on the page
