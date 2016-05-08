@@ -14,31 +14,29 @@ class CburySpider(scrapy.Spider):
     # scrapy.Spider attributes
     name = "cbury"
     allowed_domains = ["datrack.canterbury.nsw.gov.au"]
-    start_urls = ["http://datrack.canterbury.nsw.gov.au/cgi/datrack.pl?search=search&sortfield=^metadata.date_lodged",]
+    start_urls = ["http://datrack.canterbury.nsw.gov.au/cgi/datrack.pl?search=search&sortfield=^metadata.date_lodged"]
 
     # required for unicode character replacement of '$' and ',' in est_cost
     translation_table = dict.fromkeys(map(ord, '$,'), None)
-    da = DA()        
-    da['lga'] = u"Canterbury"
-
-
+    
     def parse(self, response):
         """ Retrieve DA no., URL and address for DA on summary list page """
+        da = DA()
+        da['lga'] = u"Canterbury"
         for row in response.xpath('//table/tr[@class="datrack_resultrow_odd" or @class="datrack_resultrow_even"]'):
             r = scrapy.Selector(text=row.extract(), type="html")
-            self.da['da_no'] = r.xpath('//td[@class="datrack_danumber_cell"]//text()').extract_first()
-            self.da['house_no'] = r.xpath('//td[@class="datrack_houseno_cell"]//text()').extract_first()
-            self.da['street'] = r.xpath('//td[@class="datrack_street_cell"]//text()').extract_first()
-            self.da['town'] = r.xpath('//td[@class="datrack_town_cell"]//text()').extract_first()
-            self.da['url'] = r.xpath('//td[@class="datrack_danumber_cell"]//@href').extract_first()
-            
+            da['da_no'] = r.xpath('//td[@class="datrack_danumber_cell"]//text()').extract_first()
+            da['house_no'] = r.xpath('//td[@class="datrack_houseno_cell"]//text()').extract_first()
+            da['street'] = r.xpath('//td[@class="datrack_street_cell"]//text()').extract_first()
+            da['town'] = r.xpath('//td[@class="datrack_town_cell"]//text()').extract_first()
+            da['url'] = r.xpath('//td[@class="datrack_danumber_cell"]//@href').extract_first()
             # then retrieve remaining DA details from the detail page
-            yield scrapy.Request(self.da['url'], callback=self.parse_da_page)
+            yield scrapy.Request(da['url'], callback=self.parse_da_page, meta=da)
                 
         # follow next page link if one exists
         next_page = response.xpath("//*[contains(text(), 'Next')]/@href").extract_first()
         if next_page:
-            yield scrapy.Request(next_page, self.parse)
+            yield scrapy.Request(next_page, callback=self.parse)
 
 
     def parse_da_page(self, response):  
@@ -50,19 +48,19 @@ class CburySpider(scrapy.Spider):
         
         # map DA fields with those in the following <td> elements on the page
         for i in labels:
-            self.da[i] = td_text_after(labels[i], response)
+            response.meta[i] = td_text_after(labels[i], response)
 
         # convert est_cost text to int for easier sheet import "12,000" -> 12000
-        if self.da['est_cost'] != None:
-            self.da['est_cost'] = int(self.da['est_cost'].translate(self.translation_table))
+        if response.meta['est_cost'] != None:
+            response.meta['est_cost'] = int(response.meta['est_cost'].translate(self.translation_table))
 
         # Get people data from 'Names' table with 'Role' heading
-        self.da['names'] = []
+        response.meta['names'] = []
         for row in response.xpath('//table/tr[th[1]="Role"]/following-sibling::tr'):    
             da_name = {}
             da_name['role'] = row.xpath('normalize-space(./td[1])').extract_first()            
             da_name['name_no'] = row.xpath('normalize-space(./td[2])').extract_first()
             da_name['full_name'] = row.xpath('normalize-space(./td[3])').extract_first()
-            self.da['names'].append(da_name)
+            response.meta['names'].append(da_name)
                     
-        yield self.da
+        yield response.meta
